@@ -1,7 +1,8 @@
-package com.tipi.conversations.restapi;
+package com.tipi.conversations.restadapter;
 
 import com.tipi.conversations.domain.Conversation;
 import com.tipi.conversations.domain.ConversationRepository;
+import com.tipi.conversations.domain.ConversationSearchCriteria;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,13 @@ public class SampleConversationRepository implements ConversationRepository {
 	}
 
 	public void update(Conversation conversation) {
-
+		String conversationId = conversation.getConversationId();
+		for (Conversation conversation1 : conversationList) {
+			if (conversation.getConversationId().equals(conversation1.getConversationId())) {
+				conversationList.remove(conversation1);
+				conversationList.add(conversation);
+			}
+		}
 	}
 
 	public boolean exists(String conversationId) {
@@ -31,11 +38,18 @@ public class SampleConversationRepository implements ConversationRepository {
 	}
 
 	public Conversation get(String conversationId) {
+		if (conversationId == null) {
+			throw new IllegalArgumentException("Conversation Id cannot be empty.");
+		}
 		for (Conversation conversation : conversationList) {
 			if (conversation.getConversationId().equals(conversationId)) {
 				return conversation;
 			}
 		}
 		return null;
+	}
+
+	public long count(ConversationSearchCriteria criteria) {
+		return conversationList.size();
 	}
 }

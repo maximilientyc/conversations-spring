@@ -1,4 +1,4 @@
-package com.tipi.conversations.restapi;
+package com.tipi.conversations.restadapter;
 
 import com.tipi.conversations.domain.*;
 import org.junit.Rule;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by @maximilientyc on 26/03/2016.
  */
-public class RestApiTest {
+public class RestAdapterTest {
 
 	@Rule
 	public final ExpectedException expectedException;
@@ -28,9 +28,9 @@ public class RestApiTest {
 	private final ConversationRepository conversationRepository;
 	private final MessageRepository messageRepository;
 
-	public RestApiTest() {
+	public RestAdapterTest() {
 		conversationRepository = new SampleConversationRepository();
-		messageRepository = Mockito.mock(SampleMessageRepository.class);
+		messageRepository = new SampleMessageRepository();
 		conversationService = new ConversationService(conversationRepository, messageRepository);
 		conversationFactory = new ConversationFactory(conversationService);
 		messageFactory = new MessageFactory(conversationService);
@@ -44,11 +44,10 @@ public class RestApiTest {
 	@Test
 	public void should_create_a_new_conversation() {
 		// given
-		CreateConversationForm createConversationForm = new CreateConversationForm();
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
-		createConversationForm.setUserIds(userIdList);
+		CreateConversationForm createConversationForm = new CreateConversationForm(userIdList);
 
 		// when
 		String conversationId = conversationController.postConversation(createConversationForm);
@@ -58,4 +57,21 @@ public class RestApiTest {
 		assertThat(conversationExists).isTrue();
 	}
 
+	/**
+	 @Test public void should_update_conversation() {
+	 // given
+	 CreateConversationForm createConversationForm = new CreateConversationForm();
+	 List<String> userIdList = new ArrayList<String>();
+	 userIdList.add("max");
+	 userIdList.add("bob");
+	 createConversationForm.setUserIds(userIdList);
+	 String conversationId = conversationController.postConversation(createConversationForm);
+
+	 // when
+	 UpdateConversationForm updateConversationForm = new UpdateConversationForm();
+	 userIdList.add("alice");
+	 updateConversationForm.setUserIdList(userIdList);
+	 conversationController.putConversation(updateConversationForm);
+	 }
+	 **/
 }

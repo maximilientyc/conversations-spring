@@ -1,6 +1,6 @@
-package com.tipi.conversations.restapi;
+package com.tipi.conversations.restadapter;
 
-import com.tipi.conversations.api.CreateConversationCommand;
+import com.tipi.conversations.commands.CreateConversationCommand;
 import com.tipi.conversations.domain.Conversation;
 import com.tipi.conversations.domain.ConversationFactory;
 import com.tipi.conversations.domain.ConversationRepository;
@@ -25,12 +25,8 @@ public class ConversationController {
 	}
 
 	public String postConversation(@RequestBody CreateConversationForm createConversationForm) {
-		Conversation conversation = conversationFactory.buildConversation();
-		for (String userId : createConversationForm.getUserIds()) {
-			conversation.addParticipant(participantFactory.buildParticipant(userId));
-		}
-		CreateConversationCommand createConversationCommand = new CreateConversationCommand(conversation, conversationRepository);
-		createConversationCommand.execute();
+		CreateConversationCommand createConversationCommand = new CreateConversationCommand(createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository);
+		Conversation conversation = createConversationCommand.execute();
 		return conversation.getConversationId();
 	}
 

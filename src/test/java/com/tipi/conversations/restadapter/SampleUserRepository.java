@@ -1,4 +1,4 @@
-package com.tipi.conversations.restapi;
+package com.tipi.conversations.restadapter;
 
 import com.tipi.conversations.domain.User;
 import com.tipi.conversations.domain.UserRepository;
