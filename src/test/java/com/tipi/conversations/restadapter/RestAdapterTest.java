@@ -4,7 +4,6 @@ import com.tipi.conversations.domain.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,21 +56,24 @@ public class RestAdapterTest {
 		assertThat(conversationExists).isTrue();
 	}
 
-	/**
-	 @Test public void should_update_conversation() {
-	 // given
-	 CreateConversationForm createConversationForm = new CreateConversationForm();
-	 List<String> userIdList = new ArrayList<String>();
-	 userIdList.add("max");
-	 userIdList.add("bob");
-	 createConversationForm.setUserIds(userIdList);
-	 String conversationId = conversationController.postConversation(createConversationForm);
 
-	 // when
-	 UpdateConversationForm updateConversationForm = new UpdateConversationForm();
-	 userIdList.add("alice");
-	 updateConversationForm.setUserIdList(userIdList);
-	 conversationController.putConversation(updateConversationForm);
-	 }
-	 **/
+	@Test
+	public void should_update_conversation() {
+		// given
+		List<String> userIdList = new ArrayList<String>();
+		userIdList.add("max");
+		userIdList.add("bob");
+		CreateConversationForm createConversationForm = new CreateConversationForm(userIdList);
+		String conversationId = conversationController.postConversation(createConversationForm);
+
+		// when
+		userIdList.add("alice");
+		UpdateConversationForm updateConversationForm = new UpdateConversationForm(userIdList);
+		conversationController.putConversation(updateConversationForm);
+
+		// then
+		Conversation conversation = conversationRepository.get(conversationId);
+		assertThat(conversation.countParticipants()).isEqualTo(3);
+	}
+
 }
