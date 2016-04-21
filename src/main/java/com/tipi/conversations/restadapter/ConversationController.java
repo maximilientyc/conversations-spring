@@ -23,12 +23,19 @@ public class ConversationController {
 	}
 
 	public String postConversation(CreateConversationForm createConversationForm) {
-		CreateConversationCommand createConversationCommand = new CreateConversationCommand(createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository);
+		CreateConversationCommand createConversationCommand = new CreateConversationCommand(
+				createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
+		);
+
 		Conversation conversation = createConversationCommand.execute();
 		return conversation.getConversationId();
 	}
 
 	public void putConversation(UpdateConversationForm updateConversationForm) {
-		UpdateConversationCommand updateConversationCommand = new UpdateConversationCommand();
+		UpdateConversationCommand updateConversationCommand = new UpdateConversationCommand(
+				updateConversationForm.getConversationId(), updateConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
+		);
+
+		updateConversationCommand.execute();
 	}
 }

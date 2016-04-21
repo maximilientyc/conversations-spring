@@ -68,7 +68,7 @@ public class RestAdapterTest {
 
 		// when
 		userIdList.add("alice");
-		UpdateConversationForm updateConversationForm = new UpdateConversationForm(userIdList);
+		UpdateConversationForm updateConversationForm = new UpdateConversationForm(conversationId, userIdList);
 		conversationController.putConversation(updateConversationForm);
 
 		// then
