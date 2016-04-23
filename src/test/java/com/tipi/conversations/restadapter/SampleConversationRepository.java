@@ -1,8 +1,8 @@
 package com.tipi.conversations.restadapter;
 
-import com.tipi.conversations.domain.Conversation;
-import com.tipi.conversations.domain.ConversationRepository;
-import com.tipi.conversations.domain.ConversationSearchCriteria;
+import com.github.maximilientyc.conversations.domain.Conversation;
+import com.github.maximilientyc.conversations.domain.ConversationRepository;
+import com.github.maximilientyc.conversations.domain.ConversationSearchCriteria;
 
 import java.util.ArrayList;
 import java.util.List;

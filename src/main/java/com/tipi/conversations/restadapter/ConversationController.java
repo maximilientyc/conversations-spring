@@ -1,11 +1,10 @@
 package com.tipi.conversations.restadapter;
 
-import com.tipi.conversations.commands.CreateConversationCommand;
-import com.tipi.conversations.commands.UpdateConversationCommand;
-import com.tipi.conversations.domain.Conversation;
-import com.tipi.conversations.domain.ConversationFactory;
-import com.tipi.conversations.domain.ConversationRepository;
-import com.tipi.conversations.domain.ParticipantFactory;
+import com.github.maximilientyc.conversations.commands.CreateConversationCommand;
+import com.github.maximilientyc.conversations.commands.UpdateConversationCommand;
+import com.github.maximilientyc.conversations.domain.ConversationFactory;
+import com.github.maximilientyc.conversations.domain.ConversationRepository;
+import com.github.maximilientyc.conversations.domain.ParticipantFactory;
 
 /**
  * Created by @maximilientyc on 26/03/2016.
@@ -23,19 +22,14 @@ public class ConversationController {
 	}
 
 	public String postConversation(CreateConversationForm createConversationForm) {
-		CreateConversationCommand createConversationCommand = new CreateConversationCommand(
+		return new CreateConversationCommand(
 				createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
-		);
-
-		Conversation conversation = createConversationCommand.execute();
-		return conversation.getConversationId();
+		).execute().getConversationId();
 	}
 
 	public void putConversation(UpdateConversationForm updateConversationForm) {
-		UpdateConversationCommand updateConversationCommand = new UpdateConversationCommand(
+		new UpdateConversationCommand(
 				updateConversationForm.getConversationId(), updateConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
-		);
-
-		updateConversationCommand.execute();
+		).execute();
 	}
 }

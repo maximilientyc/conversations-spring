@@ -1,6 +1,6 @@
 package com.tipi.conversations.restadapter;
 
-import com.tipi.conversations.domain.*;
+import com.github.maximilientyc.conversations.domain.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

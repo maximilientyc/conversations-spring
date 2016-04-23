@@ -1,7 +1,7 @@
 package com.tipi.conversations.restadapter;
 
-import com.tipi.conversations.domain.User;
-import com.tipi.conversations.domain.UserRepository;
+import com.github.maximilientyc.conversations.domain.User;
+import com.github.maximilientyc.conversations.domain.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
