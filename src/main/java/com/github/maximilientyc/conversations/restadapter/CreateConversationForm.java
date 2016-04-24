@@ -1,4 +1,4 @@
-package com.tipi.conversations.restadapter;
+package com.github.maximilientyc.conversations.restadapter;
 
 /**
  * Created by @maximilientyc on 26/03/2016.

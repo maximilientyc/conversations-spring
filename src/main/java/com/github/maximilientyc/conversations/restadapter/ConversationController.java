@@ -1,4 +1,4 @@
-package com.tipi.conversations.restadapter;
+package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.commands.CreateConversationCommand;
 import com.github.maximilientyc.conversations.commands.UpdateConversationCommand;
