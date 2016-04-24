@@ -58,7 +58,7 @@ public class RestAdapterTest {
 
 
 	@Test
-	public void should_update_conversation() {
+	public void should_add_a_new_participant() {
 		// given
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
@@ -74,6 +74,26 @@ public class RestAdapterTest {
 		// then
 		Conversation conversation = conversationRepository.get(conversationId);
 		assertThat(conversation.countParticipants()).isEqualTo(3);
+	}
+
+	@Test
+	public void should_remove_a_participant() {
+		// given
+		List<String> userIdList = new ArrayList<String>();
+		userIdList.add("max");
+		userIdList.add("bob");
+		userIdList.add("alice");
+		CreateConversationForm createConversationForm = new CreateConversationForm(userIdList);
+		String conversationId = conversationController.postConversation(createConversationForm);
+
+		// when
+		userIdList.remove("alice");
+		UpdateConversationForm updateConversationForm = new UpdateConversationForm(conversationId, userIdList);
+		conversationController.putConversation(updateConversationForm);
+
+		// then
+		Conversation conversation = conversationRepository.get(conversationId);
+		assertThat(conversation.countParticipants()).isEqualTo(2);
 	}
 
 }
