@@ -4,6 +4,9 @@ import com.github.maximilientyc.conversations.domain.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Created by @maximilientyc on 26/03/2016.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SampleApplication.class)
 public class RestAdapterTest {
 
 	@Rule
