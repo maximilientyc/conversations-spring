@@ -1,6 +1,7 @@
 package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.domain.*;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -9,15 +10,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.hamcrest.Matchers;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Created by @maximilientyc on 26/03/2016.
@@ -84,6 +86,31 @@ public class RestAdapterTest {
 
 		// then
 		resultActions.andExpect(header().string("Location", Matchers.containsString("/conversations/")));
+	}
+
+	@Test
+	public void should_return_json_when_retrieving_newly_created_conversation() throws Exception {
+		// given
+		List<String> userIdList = new ArrayList<String>();
+		userIdList.add("max");
+		userIdList.add("bob");
+
+		// when
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
+		MvcResult mvcResult = mockMvc
+				.perform(post("/conversations")
+						.content(getSampleUserIdsAsJson())
+						.contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+
+		String location = mvcResult.getResponse().getHeader("Location");
+
+		// then
+		ResultActions resultActions = mockMvc
+				.perform(get(location)
+						.accept(MediaType.APPLICATION_JSON));
+
+		resultActions.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 	}
 
 	private String getSampleUserIdsAsJson() {

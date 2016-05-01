@@ -2,6 +2,7 @@ package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.commands.CreateConversationCommand;
 import com.github.maximilientyc.conversations.commands.UpdateConversationCommand;
+import com.github.maximilientyc.conversations.domain.Conversation;
 import com.github.maximilientyc.conversations.domain.ConversationFactory;
 import com.github.maximilientyc.conversations.domain.ConversationRepository;
 import com.github.maximilientyc.conversations.domain.ParticipantFactory;
@@ -9,10 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
@@ -46,6 +44,15 @@ public class ConversationController {
 				.buildAndExpand(conversationId).toUri());
 
 		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+	}
+
+	@RequestMapping(value = "/conversations/{conversationId}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Conversation> getConversation(@PathVariable String conversationId) {
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		Conversation conversation = conversationRepository.get(conversationId);
+		return new ResponseEntity<>(conversation, httpHeaders, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.PUT)
