@@ -11,11 +11,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
+import org.hamcrest.Matchers;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -58,12 +59,36 @@ public class RestAdapterTest {
 
 		// when
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
-		ResultActions resultActions = mockMvc.perform(post("/conversations").content("{\n" +
-				"  \"userIds\" : [\"max\", \"bob\"]\n" +
-				"} ").contentType(MediaType.APPLICATION_JSON));
+		ResultActions resultActions = mockMvc
+				.perform(post("/conversations")
+						.content(getSampleUserIdsAsJson())
+						.contentType(MediaType.APPLICATION_JSON));
 
 		// then
 		resultActions.andExpect(status().isCreated());
 	}
 
+	@Test
+	public void should_contain_location_in_header_when_creating_a_new_conversation() throws Exception {
+		// given
+		List<String> userIdList = new ArrayList<String>();
+		userIdList.add("max");
+		userIdList.add("bob");
+
+		// when
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
+		ResultActions resultActions = mockMvc
+				.perform(post("/conversations")
+						.content(getSampleUserIdsAsJson())
+						.contentType(MediaType.APPLICATION_JSON));
+
+		// then
+		resultActions.andExpect(header().string("Location", Matchers.containsString("/conversations/")));
+	}
+
+	private String getSampleUserIdsAsJson() {
+		return "{" +
+				"  \"userIds\" : [\"max\", \"bob\"]" +
+				"} ";
+	}
 }

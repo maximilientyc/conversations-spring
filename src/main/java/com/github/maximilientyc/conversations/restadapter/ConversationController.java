@@ -45,7 +45,7 @@ public class ConversationController {
 				.fromCurrentRequest().path("/{id}")
 				.buildAndExpand(conversationId).toUri());
 
-		return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
+		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.PUT)
