@@ -5,11 +5,15 @@ import com.github.maximilientyc.conversations.commands.UpdateConversationCommand
 import com.github.maximilientyc.conversations.domain.ConversationFactory;
 import com.github.maximilientyc.conversations.domain.ConversationRepository;
 import com.github.maximilientyc.conversations.domain.ParticipantFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * Created by @maximilientyc on 26/03/2016.
@@ -31,11 +35,17 @@ public class ConversationController {
 	}
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.POST)
-	@ResponseStatus(value = HttpStatus.CREATED)
-	public String postConversation(CreateConversationForm createConversationForm) {
-		return new CreateConversationCommand(
+	public ResponseEntity<?> postConversation(@RequestBody CreateConversationForm createConversationForm) {
+		String conversationId = new CreateConversationCommand(
 				createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
 		).execute().getConversationId();
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setLocation(ServletUriComponentsBuilder
+				.fromCurrentRequest().path("/{id}")
+				.buildAndExpand(conversationId).toUri());
+
+		return new ResponseEntity<>(null, httpHeaders, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.PUT)

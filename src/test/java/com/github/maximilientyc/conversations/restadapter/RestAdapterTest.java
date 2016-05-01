@@ -5,14 +5,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Created by @maximilientyc on 26/03/2016.
@@ -46,59 +50,20 @@ public class RestAdapterTest {
 	}
 
 	@Test
-	public void should_create_a_new_conversation() {
+	public void should_return_201_created_when_creating_a_new_conversation() throws Exception {
 		// given
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
-		CreateConversationForm createConversationForm = new CreateConversationForm(userIdList);
 
 		// when
-		String conversationId = conversationController.postConversation(createConversationForm);
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
+		ResultActions resultActions = mockMvc.perform(post("/conversations").content("{\n" +
+				"  \"userIds\" : [\"max\", \"bob\"]\n" +
+				"} ").contentType(MediaType.APPLICATION_JSON));
 
 		// then
-		boolean conversationExists = conversationRepository.exists(conversationId);
-		assertThat(conversationExists).isTrue();
-	}
-
-
-	@Test
-	public void should_add_a_new_participant() {
-		// given
-		List<String> userIdList = new ArrayList<String>();
-		userIdList.add("max");
-		userIdList.add("bob");
-		CreateConversationForm createConversationForm = new CreateConversationForm(userIdList);
-		String conversationId = conversationController.postConversation(createConversationForm);
-
-		// when
-		userIdList.add("alice");
-		UpdateConversationForm updateConversationForm = new UpdateConversationForm(conversationId, userIdList);
-		conversationController.putConversation(updateConversationForm);
-
-		// then
-		Conversation conversation = conversationRepository.get(conversationId);
-		assertThat(conversation.countParticipants()).isEqualTo(3);
-	}
-
-	@Test
-	public void should_remove_a_participant() {
-		// given
-		List<String> userIdList = new ArrayList<String>();
-		userIdList.add("max");
-		userIdList.add("bob");
-		userIdList.add("alice");
-		CreateConversationForm createConversationForm = new CreateConversationForm(userIdList);
-		String conversationId = conversationController.postConversation(createConversationForm);
-
-		// when
-		userIdList.remove("alice");
-		UpdateConversationForm updateConversationForm = new UpdateConversationForm(conversationId, userIdList);
-		conversationController.putConversation(updateConversationForm);
-
-		// then
-		Conversation conversation = conversationRepository.get(conversationId);
-		assertThat(conversation.countParticipants()).isEqualTo(2);
+		resultActions.andExpect(status().isCreated());
 	}
 
 }
