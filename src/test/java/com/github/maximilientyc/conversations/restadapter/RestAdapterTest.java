@@ -193,7 +193,7 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		String conversationAsString = getMvcResult.getResponse().getContentAsString();
 		Gson gson = gsonBuilder().create();
 		Conversation conversation = gson.fromJson(conversationAsString, Conversation.class);
-
+		return conversation;
 	}
 
 	private GsonBuilder gsonBuilder() {
