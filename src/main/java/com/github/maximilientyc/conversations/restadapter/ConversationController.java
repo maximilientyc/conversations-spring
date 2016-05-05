@@ -49,10 +49,8 @@ public class ConversationController {
 	@RequestMapping(value = "/conversations/{conversationId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Conversation> getConversation(@PathVariable String conversationId) {
-
-		HttpHeaders httpHeaders = new HttpHeaders();
 		Conversation conversation = conversationRepository.get(conversationId);
-		return new ResponseEntity<>(conversation, httpHeaders, HttpStatus.OK);
+		return new ResponseEntity<>(conversation, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.PUT)
