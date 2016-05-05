@@ -139,16 +139,9 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 						.contentType(MediaType.APPLICATION_JSON))
 				.andReturn();
 
-		String location = postMvcResult.getResponse().getHeader("Location");
-
 		// then
-		MvcResult getMvcResult = mockMvc
-				.perform(get(location)
-						.accept(MediaType.APPLICATION_JSON)).andReturn();
-
-		String conversationAsString = getMvcResult.getResponse().getContentAsString();
-		Gson gson = gsonBuilder().create();
-		Conversation conversation = gson.fromJson(conversationAsString, Conversation.class);
+		String location = postMvcResult.getResponse().getHeader("Location");
+		Conversation conversation = getConversationHttp(location);
 
 		assertThat(conversation.countParticipants()).isEqualTo(2);
 		assertThat(conversation.containsParticipant("max")).isTrue();
@@ -164,6 +157,7 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		String conversationAsJson = getAsJson(userIdList);
 
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
+
 		MvcResult postMvcResult = mockMvc
 				.perform(post("/conversations")
 						.content(conversationAsJson)
@@ -171,12 +165,7 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 				.andReturn();
 
 		String location = postMvcResult.getResponse().getHeader("Location");
-		MvcResult getMvcResult = mockMvc
-				.perform(get(location)
-						.accept(MediaType.APPLICATION_JSON)).andReturn();
-		String conversationAsString = getMvcResult.getResponse().getContentAsString();
-		Gson gson = gsonBuilder().create();
-		Conversation conversation = gson.fromJson(conversationAsString, Conversation.class);
+		Conversation conversation = getConversationHttp(location);
 
 		// when
 		userIdList.add("alice");
@@ -193,6 +182,18 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		assertThat(conversationUpdated.containsParticipant("max")).isTrue();
 		assertThat(conversationUpdated.containsParticipant("bob")).isTrue();
 		assertThat(conversationUpdated.containsParticipant("alice")).isTrue();
+	}
+
+	private Conversation getConversationHttp(String location) throws Exception {
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
+
+		MvcResult getMvcResult = mockMvc
+				.perform(get(location)
+						.accept(MediaType.APPLICATION_JSON)).andReturn();
+		String conversationAsString = getMvcResult.getResponse().getContentAsString();
+		Gson gson = gsonBuilder().create();
+		Conversation conversation = gson.fromJson(conversationAsString, Conversation.class);
+
 	}
 
 	private GsonBuilder gsonBuilder() {
