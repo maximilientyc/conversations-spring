@@ -55,7 +55,7 @@ public class ConversationController {
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.PUT)
 	@ResponseStatus(value = HttpStatus.OK)
-	public void putConversation(UpdateConversationForm updateConversationForm) {
+	public void putConversation(@RequestBody UpdateConversationForm updateConversationForm) {
 		new UpdateConversationCommand(
 				updateConversationForm.getConversationId(), updateConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
 		).execute();

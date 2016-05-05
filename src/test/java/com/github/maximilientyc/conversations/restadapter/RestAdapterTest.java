@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -66,12 +65,13 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
+		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		ResultActions resultActions = mockMvc
 				.perform(post("/conversations")
-						.content(getSampleUserIdsAsJson())
+						.content(userIdListAsJson)
 						.contentType(MediaType.APPLICATION_JSON));
 
 		// then
@@ -84,12 +84,13 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
+		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		ResultActions resultActions = mockMvc
 				.perform(post("/conversations")
-						.content(getSampleUserIdsAsJson())
+						.content(userIdListAsJson)
 						.contentType(MediaType.APPLICATION_JSON));
 
 		// then
@@ -102,12 +103,13 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
+		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		MvcResult mvcResult = mockMvc
 				.perform(post("/conversations")
-						.content(getSampleUserIdsAsJson())
+						.content(userIdListAsJson)
 						.contentType(MediaType.APPLICATION_JSON))
 				.andReturn();
 
@@ -127,12 +129,13 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
+		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		MvcResult postMvcResult = mockMvc
 				.perform(post("/conversations")
-						.content(getSampleUserIdsAsJson())
+						.content(userIdListAsJson)
 						.contentType(MediaType.APPLICATION_JSON))
 				.andReturn();
 
@@ -152,10 +155,44 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		assertThat(conversation.containsParticipant("bob")).isTrue();
 	}
 
-	private String getSampleUserIdsAsJson() {
-		return "{" +
-				"  \"userIds\" : [\"max\", \"bob\"]" +
-				"} ";
+	@Test
+	public void should_contain_alice_when_add_to_max_and_bob_conversation() throws Exception {
+		// given
+		List<String> userIdList = new ArrayList<String>();
+		userIdList.add("max");
+		userIdList.add("bob");
+		String conversationAsJson = getAsJson(userIdList);
+
+		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
+		MvcResult postMvcResult = mockMvc
+				.perform(post("/conversations")
+						.content(conversationAsJson)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+
+		String location = postMvcResult.getResponse().getHeader("Location");
+		MvcResult getMvcResult = mockMvc
+				.perform(get(location)
+						.accept(MediaType.APPLICATION_JSON)).andReturn();
+		String conversationAsString = getMvcResult.getResponse().getContentAsString();
+		Gson gson = gsonBuilder().create();
+		Conversation conversation = gson.fromJson(conversationAsString, Conversation.class);
+
+		// when
+		userIdList.add("alice");
+		conversationAsJson = getAsJson(conversation.getConversationId(), userIdList);
+		MvcResult putMvcResult = mockMvc
+				.perform(put("/conversations")
+						.content(conversationAsJson)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+
+		// then
+		Conversation conversationUpdated = conversationRepository.get(conversation.getConversationId());
+		assertThat(conversationUpdated.countParticipants()).isEqualTo(3);
+		assertThat(conversationUpdated.containsParticipant("max")).isTrue();
+		assertThat(conversationUpdated.containsParticipant("bob")).isTrue();
+		assertThat(conversationUpdated.containsParticipant("alice")).isTrue();
 	}
 
 	private GsonBuilder gsonBuilder() {
@@ -169,4 +206,38 @@ public class RestAdapterTest extends WebMvcConfigurerAdapter {
 		return gsonBuilder;
 	}
 
+	private String getAsJson(List<String> userIdList) {
+		ConversationJson conversationJson = new ConversationJson(userIdList);
+		String userIdListAsJson = gsonBuilder().create().toJson(conversationJson);
+		return userIdListAsJson;
+	}
+
+	private String getAsJson(String conversationId, List<String> userIdList) {
+		ConversationJson conversationJson = new ConversationJson(conversationId, userIdList);
+		String userIdListAsJson = gsonBuilder().create().toJson(conversationJson);
+		return userIdListAsJson;
+	}
+
+	private class ConversationJson {
+
+		private String conversationId;
+		private List<String> userIds;
+
+		public ConversationJson(List<String> userIdList) {
+			this.userIds = userIdList;
+		}
+
+		public ConversationJson(String conversationId, List<String> userIdList) {
+			this.conversationId = conversationId;
+			this.userIds = userIdList;
+		}
+
+		public String getConversationId() {
+			return conversationId;
+		}
+
+		public List<String> getUserIds() {
+			return userIds;
+		}
+	}
 }
