@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextHierarchy({
 		@ContextConfiguration(classes = SampleConfiguration.class)
 })
-public class RestAdapterTest extends WebMvcConfigurerAdapter {
+public class RestAdapterTest {
 
 	@Rule
 	public final ExpectedException expectedException;
