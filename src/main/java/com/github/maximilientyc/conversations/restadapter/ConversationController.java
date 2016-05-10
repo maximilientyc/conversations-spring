@@ -2,10 +2,7 @@ package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.commands.CreateConversationCommand;
 import com.github.maximilientyc.conversations.commands.UpdateConversationCommand;
-import com.github.maximilientyc.conversations.domain.Conversation;
-import com.github.maximilientyc.conversations.domain.ConversationFactory;
-import com.github.maximilientyc.conversations.domain.ConversationRepository;
-import com.github.maximilientyc.conversations.domain.ParticipantFactory;
+import com.github.maximilientyc.conversations.domain.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +19,22 @@ public class ConversationController {
 	private ParticipantFactory participantFactory;
 	private ConversationRepository conversationRepository;
 	private ConversationFactory conversationFactory;
+	private UserService userService;
 
 	public ConversationController() {
 	}
 
-	public ConversationController(ParticipantFactory participantFactory, ConversationRepository conversationRepository, ConversationFactory conversationFactory) {
+	public ConversationController(ParticipantFactory participantFactory, ConversationRepository conversationRepository, ConversationFactory conversationFactory, UserService userService) {
 		this.participantFactory = participantFactory;
 		this.conversationRepository = conversationRepository;
 		this.conversationFactory = conversationFactory;
+		this.userService = userService;
 	}
 
 	@RequestMapping(value = "/conversations", method = RequestMethod.POST)
 	public ResponseEntity<?> postConversation(@RequestBody CreateConversationForm createConversationForm) {
 		String conversationId = new CreateConversationCommand(
-				createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
+				createConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository, userService
 		).execute().getConversationId();
 
 		HttpHeaders httpHeaders = new HttpHeaders();

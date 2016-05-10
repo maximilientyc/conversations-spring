@@ -42,6 +42,7 @@ public class RestAdapterTest {
 	private final MessageFactory messageFactory;
 	private final ParticipantFactory participantFactory;
 	private final UserRepository userRepository;
+	private final UserService userService;
 	private final ConversationRepository conversationRepository;
 	private final MessageRepository messageRepository;
 
@@ -52,10 +53,11 @@ public class RestAdapterTest {
 		conversationFactory = new ConversationFactory(conversationService);
 		messageFactory = new MessageFactory(conversationService);
 		userRepository = new SampleUserRepository();
+		userService = new SampleUserService();
 		participantFactory = new ParticipantFactory(userRepository);
 		expectedException = ExpectedException.none();
 
-		conversationController = new ConversationController(participantFactory, conversationRepository, conversationFactory);
+		conversationController = new ConversationController(participantFactory, conversationRepository, conversationFactory, userService);
 	}
 
 	@Test
@@ -195,17 +197,6 @@ public class RestAdapterTest {
 		return conversation;
 	}
 
-	private GsonBuilder gsonBuilder() {
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-			@Override
-			public Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-				return new Date(jsonElement.getAsJsonPrimitive().getAsLong());
-			}
-		});
-		return gsonBuilder;
-	}
-
 	private String getAsJson(List<String> userIdList) {
 		ConversationJson conversationJson = new ConversationJson(userIdList);
 		String userIdListAsJson = gsonBuilder().create().toJson(conversationJson);
@@ -216,6 +207,17 @@ public class RestAdapterTest {
 		ConversationJson conversationJson = new ConversationJson(conversationId, userIdList);
 		String userIdListAsJson = gsonBuilder().create().toJson(conversationJson);
 		return userIdListAsJson;
+	}
+
+	private GsonBuilder gsonBuilder() {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+			@Override
+			public Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+				return new Date(jsonElement.getAsJsonPrimitive().getAsLong());
+			}
+		});
+		return gsonBuilder;
 	}
 
 	private class ConversationJson {
