@@ -56,7 +56,7 @@ public class ConversationController {
 	@ResponseStatus(value = HttpStatus.OK)
 	public void putConversation(@RequestBody UpdateConversationForm updateConversationForm) {
 		new UpdateConversationCommand(
-				updateConversationForm.getConversationId(), updateConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository
+				updateConversationForm.getConversationId(), updateConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository, userService
 		).execute();
 	}
 }
