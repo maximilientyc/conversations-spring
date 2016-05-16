@@ -3,6 +3,7 @@ package com.github.maximilientyc.conversations.restadapter;
 import com.github.maximilientyc.conversations.domain.*;
 import com.google.gson.*;
 import org.hamcrest.Matchers;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,18 +36,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RestAdapterTest {
 
 	@Rule
-	public final ExpectedException expectedException;
-	private final ConversationController conversationController;
-	private final ConversationService conversationService;
-	private final ConversationFactory conversationFactory;
-	private final MessageFactory messageFactory;
-	private final ParticipantFactory participantFactory;
-	private final UserRepository userRepository;
-	private final UserService userService;
-	private final ConversationRepository conversationRepository;
-	private final MessageRepository messageRepository;
+	public ExpectedException expectedException;
+	private MockMvc mockMvc;
+
+	private ConversationController conversationController;
+	private ConversationService conversationService;
+	private ConversationFactory conversationFactory;
+	private MessageFactory messageFactory;
+	private ParticipantFactory participantFactory;
+	private UserRepository userRepository;
+	private UserService userService;
+	private ConversationRepository conversationRepository;
+	private MessageRepository messageRepository;
 
 	public RestAdapterTest() {
+		expectedException = ExpectedException.none();
+	}
+
+	@Before
+	public void initComponents() {
 		conversationRepository = new SampleConversationRepository();
 		messageRepository = new SampleMessageRepository();
 		conversationService = new ConversationService(conversationRepository, messageRepository);
@@ -55,9 +63,9 @@ public class RestAdapterTest {
 		userRepository = new SampleUserRepository();
 		userService = new SampleUserService();
 		participantFactory = new ParticipantFactory(userRepository);
-		expectedException = ExpectedException.none();
 
 		conversationController = new ConversationController(participantFactory, conversationRepository, conversationFactory, userService);
+		mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 	}
 
 	@Test
@@ -69,7 +77,6 @@ public class RestAdapterTest {
 		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		ResultActions resultActions = mockMvc
 				.perform(post("/conversations")
 						.content(userIdListAsJson)
@@ -88,7 +95,6 @@ public class RestAdapterTest {
 		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		ResultActions resultActions = mockMvc
 				.perform(post("/conversations")
 						.content(userIdListAsJson)
@@ -104,23 +110,15 @@ public class RestAdapterTest {
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
-		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
-		MvcResult mvcResult = mockMvc
-				.perform(post("/conversations")
-						.content(userIdListAsJson)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andReturn();
-
+		MvcResult mvcResult = postConversation(userIdList);
 		String location = mvcResult.getResponse().getHeader("Location");
-
-		// then
 		ResultActions resultActions = mockMvc
 				.perform(get(location)
 						.accept(MediaType.APPLICATION_JSON));
 
+		// then
 		resultActions.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 	}
 
@@ -133,7 +131,6 @@ public class RestAdapterTest {
 		String userIdListAsJson = getAsJson(userIdList);
 
 		// when
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 		MvcResult postMvcResult = mockMvc
 				.perform(post("/conversations")
 						.content(userIdListAsJson)
@@ -155,22 +152,13 @@ public class RestAdapterTest {
 		List<String> userIdList = new ArrayList<String>();
 		userIdList.add("max");
 		userIdList.add("bob");
-		String conversationAsJson = getAsJson(userIdList);
-
-		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
-
-		MvcResult postMvcResult = mockMvc
-				.perform(post("/conversations")
-						.content(conversationAsJson)
-						.contentType(MediaType.APPLICATION_JSON))
-				.andReturn();
-
+		MvcResult postMvcResult = postConversation(userIdList);
 		String location = postMvcResult.getResponse().getHeader("Location");
 		Conversation conversation = getConversationHttp(location);
 
 		// when
 		userIdList.add("alice");
-		conversationAsJson = getAsJson(conversation.getConversationId(), userIdList);
+		String conversationAsJson = getAsJson(conversation.getConversationId(), userIdList);
 		MvcResult putMvcResult = mockMvc
 				.perform(put("/conversations")
 						.content(conversationAsJson)
@@ -185,6 +173,30 @@ public class RestAdapterTest {
 		assertThat(conversationUpdated.containsParticipant("alice")).isTrue();
 	}
 
+	@Test
+	public void should_return_all_conversations_created_by_max() throws Exception {
+		// given
+		List<String> userIdList = new ArrayList<String>();
+		userIdList.add("max");
+		userIdList.add("bob");
+
+		// when
+		postConversation(userIdList);
+		postConversation(userIdList);
+		ResultActions resultActions = mockMvc
+				.perform(get("/conversations/search")
+						.param("userId", "max")
+						.accept(MediaType.APPLICATION_JSON));
+
+		// then
+		resultActions.andExpect(status().isOk());
+
+		MvcResult mvcResult = resultActions.andReturn();
+		Gson gson = gsonBuilder().create();
+		List<Conversation> conversationList = gson.fromJson(mvcResult.getResponse().getContentAsString(), List.class);
+		assertThat(conversationList.size()).isEqualTo(2);
+	}
+
 	private Conversation getConversationHttp(String location) throws Exception {
 		MockMvc mockMvc = MockMvcBuilders.standaloneSetup(conversationController).build();
 
@@ -195,6 +207,18 @@ public class RestAdapterTest {
 		Gson gson = gsonBuilder().create();
 		Conversation conversation = gson.fromJson(conversationAsString, Conversation.class);
 		return conversation;
+	}
+
+	private MvcResult postConversation(List<String> userIdList) throws Exception {
+		String conversationAsJson = getAsJson(userIdList);
+
+		MvcResult postMvcResult = mockMvc
+				.perform(post("/conversations")
+						.content(conversationAsJson)
+						.contentType(MediaType.APPLICATION_JSON))
+				.andReturn();
+
+		return postMvcResult;
 	}
 
 	private String getAsJson(List<String> userIdList) {

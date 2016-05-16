@@ -12,12 +12,14 @@ import java.util.List;
  */
 public class SampleConversationRepository implements ConversationRepository {
 
-	private List<Conversation> conversationList = new ArrayList<Conversation>();
+	private List<Conversation> conversationList = new ArrayList<>();
 
+	@Override
 	public void add(Conversation conversation) {
 		conversationList.add(conversation);
 	}
 
+	@Override
 	public void update(Conversation conversation) {
 		String conversationId = conversation.getConversationId();
 		for (Conversation conversation1 : conversationList) {
@@ -28,6 +30,7 @@ public class SampleConversationRepository implements ConversationRepository {
 		}
 	}
 
+	@Override
 	public boolean exists(String conversationId) {
 		for (Conversation conversation : conversationList) {
 			if (conversation.getConversationId().equals(conversationId)) {
@@ -37,6 +40,7 @@ public class SampleConversationRepository implements ConversationRepository {
 		return false;
 	}
 
+	@Override
 	public Conversation get(String conversationId) {
 		if (conversationId == null) {
 			throw new IllegalArgumentException("Conversation Id cannot be empty.");
@@ -49,6 +53,18 @@ public class SampleConversationRepository implements ConversationRepository {
 		return null;
 	}
 
+	@Override
+	public List<Conversation> find(ConversationSearchCriteria conversationSearchCriteria) {
+		List<Conversation> foundConversationList = new ArrayList<Conversation>();
+		for (Conversation conversation : conversationList) {
+			if (conversation.containsParticipant(conversationSearchCriteria.getUserId())) {
+				foundConversationList.add(conversation);
+			}
+		}
+		return foundConversationList;
+	}
+
+	@Override
 	public long count(ConversationSearchCriteria criteria) {
 		return conversationList.size();
 	}

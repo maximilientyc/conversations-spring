@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.List;
+
 /**
  * Created by @maximilientyc on 26/03/2016.
  */
@@ -43,6 +45,15 @@ public class ConversationController {
 				.buildAndExpand(conversationId).toUri());
 
 		return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+	}
+
+	@RequestMapping(value = "/conversations/search", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<List<Conversation>> searchConversation() {
+		ConversationSearchCriteria conversationSearchCriteria = new ConversationSearchCriteria();
+		conversationSearchCriteria.setUserId(userService.getLoggedInUserId());
+		List<Conversation> conversationList = conversationRepository.find(conversationSearchCriteria);
+		return new ResponseEntity<>(conversationList, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/conversations/{conversationId}", method = RequestMethod.GET)
