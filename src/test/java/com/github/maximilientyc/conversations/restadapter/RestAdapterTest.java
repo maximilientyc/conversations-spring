@@ -1,6 +1,15 @@
 package com.github.maximilientyc.conversations.restadapter;
 
-import com.github.maximilientyc.conversations.domain.*;
+import com.github.maximilientyc.conversations.domain.Conversation;
+import com.github.maximilientyc.conversations.domain.ConversationFactory;
+import com.github.maximilientyc.conversations.domain.MessageFactory;
+import com.github.maximilientyc.conversations.domain.ParticipantFactory;
+import com.github.maximilientyc.conversations.domain.repositories.ConversationRepository;
+import com.github.maximilientyc.conversations.domain.repositories.MessageRepository;
+import com.github.maximilientyc.conversations.domain.repositories.UserRepository;
+import com.github.maximilientyc.conversations.domain.services.ConversationService;
+import com.github.maximilientyc.conversations.domain.services.UserService;
+import com.github.maximilientyc.conversations.infrastructure.searches.PaginatedList;
 import com.google.gson.*;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -193,8 +202,8 @@ public class RestAdapterTest {
 
 		MvcResult mvcResult = resultActions.andReturn();
 		Gson gson = gsonBuilder().create();
-		List<Conversation> conversationList = gson.fromJson(mvcResult.getResponse().getContentAsString(), List.class);
-		assertThat(conversationList.size()).isEqualTo(2);
+		PaginatedList<Conversation> conversationList = gson.fromJson(mvcResult.getResponse().getContentAsString(), PaginatedList.class);
+		assertThat(conversationList.getTotalRowCount()).isEqualTo(2);
 	}
 
 	private Conversation getConversationHttp(String location) throws Exception {

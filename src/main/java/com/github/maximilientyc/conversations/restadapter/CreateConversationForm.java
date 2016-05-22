@@ -1,23 +1,24 @@
 package com.github.maximilientyc.conversations.restadapter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by @maximilientyc on 26/03/2016.
  */
 public class CreateConversationForm {
 
-	private final Iterable<String> userIds;
+	private final Collection<String> userIds;
 
 	public CreateConversationForm() {
 		this.userIds = new ArrayList<>();
 	}
 
-	public CreateConversationForm(Iterable<String> userIds) {
+	public CreateConversationForm(Collection<String> userIds) {
 		this.userIds = userIds;
 	}
 
-	public Iterable<String> getUserIds() {
+	public Collection<String> getUserIds() {
 		return userIds;
 	}
 

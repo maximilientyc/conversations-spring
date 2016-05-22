@@ -1,6 +1,7 @@
 package com.github.maximilientyc.conversations.restadapter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by @maximilientyc on 02/04/2016.
@@ -8,14 +9,14 @@ import java.util.ArrayList;
 public class UpdateConversationForm {
 
 	private final String conversationId;
-	private final Iterable<String> userIds;
+	private final Collection<String> userIds;
 
 	public UpdateConversationForm() {
 		this.conversationId = null;
 		this.userIds = new ArrayList<>();
 	}
 
-	public UpdateConversationForm(String conversationId, Iterable<String> userIds) {
+	public UpdateConversationForm(String conversationId, Collection<String> userIds) {
 		this.conversationId = conversationId;
 		this.userIds = userIds;
 	}
@@ -24,7 +25,7 @@ public class UpdateConversationForm {
 		return conversationId;
 	}
 
-	public Iterable<String> getUserIds() {
+	public Collection<String> getUserIds() {
 		return userIds;
 	}
 

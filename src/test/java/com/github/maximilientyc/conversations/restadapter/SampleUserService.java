@@ -1,6 +1,7 @@
 package com.github.maximilientyc.conversations.restadapter;
 
-import com.github.maximilientyc.conversations.domain.UserService;
+
+import com.github.maximilientyc.conversations.domain.services.UserService;
 
 /**
  * Created by @maximilientyc on 09/05/2016.

@@ -1,8 +1,9 @@
 package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.domain.Conversation;
-import com.github.maximilientyc.conversations.domain.ConversationRepository;
 import com.github.maximilientyc.conversations.domain.ConversationSearchCriteria;
+import com.github.maximilientyc.conversations.domain.repositories.ConversationRepository;
+import com.github.maximilientyc.conversations.infrastructure.searches.PaginatedList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,14 +55,15 @@ public class SampleConversationRepository implements ConversationRepository {
 	}
 
 	@Override
-	public List<Conversation> find(ConversationSearchCriteria conversationSearchCriteria) {
+	public PaginatedList<Conversation> find(ConversationSearchCriteria conversationSearchCriteria) {
 		List<Conversation> foundConversationList = new ArrayList<Conversation>();
 		for (Conversation conversation : conversationList) {
 			if (conversation.containsParticipant(conversationSearchCriteria.getUserId())) {
 				foundConversationList.add(conversation);
 			}
 		}
-		return foundConversationList;
+		PaginatedList<Conversation> conversationPaginatedList = new PaginatedList<>(foundConversationList.size(), foundConversationList);
+		return conversationPaginatedList;
 	}
 
 	@Override

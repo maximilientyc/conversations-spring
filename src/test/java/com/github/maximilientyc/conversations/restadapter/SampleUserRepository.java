@@ -1,7 +1,7 @@
 package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.domain.User;
-import com.github.maximilientyc.conversations.domain.UserRepository;
+import com.github.maximilientyc.conversations.domain.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;

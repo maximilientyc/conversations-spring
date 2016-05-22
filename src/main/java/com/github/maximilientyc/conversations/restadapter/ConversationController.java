@@ -1,16 +1,20 @@
 package com.github.maximilientyc.conversations.restadapter;
 
 import com.github.maximilientyc.conversations.commands.CreateConversationCommand;
-import com.github.maximilientyc.conversations.commands.UpdateConversationCommand;
-import com.github.maximilientyc.conversations.domain.*;
+import com.github.maximilientyc.conversations.commands.UpdateConversationParticipantsCommand;
+import com.github.maximilientyc.conversations.domain.Conversation;
+import com.github.maximilientyc.conversations.domain.ConversationFactory;
+import com.github.maximilientyc.conversations.domain.ConversationSearchCriteria;
+import com.github.maximilientyc.conversations.domain.ParticipantFactory;
+import com.github.maximilientyc.conversations.domain.repositories.ConversationRepository;
+import com.github.maximilientyc.conversations.domain.services.UserService;
+import com.github.maximilientyc.conversations.infrastructure.searches.PaginatedList;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.util.List;
 
 /**
  * Created by @maximilientyc on 26/03/2016.
@@ -49,11 +53,11 @@ public class ConversationController {
 
 	@RequestMapping(value = "/conversations/search", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<List<Conversation>> searchConversation() {
-		ConversationSearchCriteria conversationSearchCriteria = new ConversationSearchCriteria();
+	public ResponseEntity<PaginatedList<Conversation>> searchConversation() {
+		ConversationSearchCriteria conversationSearchCriteria = new ConversationSearchCriteria(0, Integer.MAX_VALUE);
 		conversationSearchCriteria.setUserId(userService.getLoggedInUserId());
-		List<Conversation> conversationList = conversationRepository.find(conversationSearchCriteria);
-		return new ResponseEntity<>(conversationList, HttpStatus.OK);
+		PaginatedList<Conversation> conversationPaginateList = conversationRepository.find(conversationSearchCriteria);
+		return new ResponseEntity<>(conversationPaginateList, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/conversations/{conversationId}", method = RequestMethod.GET)
@@ -66,7 +70,7 @@ public class ConversationController {
 	@RequestMapping(value = "/conversations", method = RequestMethod.PUT)
 	@ResponseStatus(value = HttpStatus.OK)
 	public void putConversation(@RequestBody UpdateConversationForm updateConversationForm) {
-		new UpdateConversationCommand(
+		new UpdateConversationParticipantsCommand(
 				updateConversationForm.getConversationId(), updateConversationForm.getUserIds(), conversationFactory, participantFactory, conversationRepository, userService
 		).execute();
 	}
